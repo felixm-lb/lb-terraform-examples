@@ -9,7 +9,8 @@ terraform {
 
 provider "aws" {
     region = var.region[0]
-    shared_credentials_files = ["${file("${path.module}/credentials")}"]
+    shared_credentials_files = ["${path.module}./credentials"]
+    profile = "442210967146_ps-global-storage-sandbox-admin"
 }
 
 locals {
@@ -18,7 +19,9 @@ locals {
 }
 
 resource "aws_cloudformation_stack" "lightbits_cf" {
-  name = "fm_lightbits_with_network_tf"
+  name = "fm-lightbits-with-network-tf"
+
+  capabilities = [ "CAPABILITY_IAM" ] // Required because we're deploying IAM related resources in the nested stacks
 
   parameters = {
     //Network
@@ -32,7 +35,7 @@ resource "aws_cloudformation_stack" "lightbits_cf" {
     //Storage
     "InstanceCount" = var.instance_count
     "InstanceType" = var.instance_type[0]
-    "KeyName" = local.felix_east1_key
+    "KeyPairName" = local.felix_east1_key
     "S3ConfBucketName" = local.east1_deployment_bucket
   }
 
